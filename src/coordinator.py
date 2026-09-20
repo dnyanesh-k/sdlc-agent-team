@@ -86,7 +86,7 @@ async def run_group_chat(
             output = str(result.final_output) if result.final_output else "(no output)"
             context.log(current_speaker, output)
             _print_turn(current_speaker, output, turn)
-            
+
             if _detect_termination(output):
                 print(f"=" * 60)
                 print(f"  Terminate received. Sprint done in {turn} turns.")
@@ -106,6 +106,74 @@ async def run_group_chat(
 
     return context
 
+def print_summary(context: GroupChatContext) -> None:
+    print(f"\n{'=' * 60}")
+    print(f"  SPRINT SUMMARY")
+    print(f"\n{'=' * 60}")
+    print(f"Feature:  {context.feature_requests}")
+    print(f"Phase:    {context.current_phase}")
+    print(f"Turns:    {context.turn_count}")
+    print(f"Tests OK: {context.all_tests_passed}")
+
+    if context.requirements:
+        print("\n Requirements:")
+        for r in context.requirements:
+            print(f"  - [{r.id}] {r.title} : {r.description[:80]}")
+
+    if context.code.files:
+        print(f"\n Code Files:")
+        for fname in context.code.files:
+            print(f"    -{fname}")
+
+    if context.test_result:
+        print("\n Test Results:")
+        for tr in context.test_result:
+            status = "PASS" if tr.passed else "FAIL"
+            print(f"    - {tr.test_file} : {status}")
+
+    print(f"\n {'=' * 60}\n")
+
+
+def save_output_to_file(context: GroupChatContext, filename: str ="sprint_output.md") -> str:
+    lines = [
+        '#Sprint Output\n',
+        f"## Feature: {context.feature_requests}",
+        f"**Phase:** {context.current_phase}",
+        f"**Turns:** {context.turn_count}",
+        f"**Tests Passed:** {context.all_tests_passed}"
+    ]
+
+    if context.requirements:
+        lines.append("##Requirements:\n")
+        for r in context.requirements:
+            lines.append(f"- **[{r.id}] {r.title}**: {r.description}")
+            for ac in r.acceptance_criteria:
+                lines.append(f"  - {ac}")
+        lines.append("")
+
+    if context.code.files:
+        lines.append("##Code:\n")
+        for fname, content in context.code.files.items():
+            lines.append(f"### {fname}\n")
+            lines.append(f"```python\n{content}\n```\n")
+
+    if context.test_result:
+        lines.append("## Test Results\n")
+        for tr in context.test_result:
+            status = "PASS" if tr.passed else "FAIL"
+            lines.append(f"- **{tr.test_file}**: {status} ({tr.total_tests} tests, {tr.failure} failures, {tr.errors} erros)")
+        lines.append("")
+
+    lines.append("## Conversation Log\n")
+    for entry in context.conversation_log:
+        lines.append(f"### Turn {entry['turn']} - {entry['speaker']}\n")
+        lines.append(f"{entry['message']}\n")
+
+    content = "\n".join(lines)
+    with open(filename, 'w') as f:
+        f.write(content)
+
+    return filename
 
 
 

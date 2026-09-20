@@ -6,7 +6,7 @@ from enum import Enum
 
 class SpeakerRole(str, Enum):
     PRODUCT_MANAGER = "Product Manager"
-    DDEVELOPER = "Developer"
+    DEVELOPER = "Developer"
 
     
 class SprintPhase(str, Enum):

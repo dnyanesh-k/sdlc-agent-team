@@ -4,7 +4,7 @@ from models import GroupChatContext, SpeakerRole
 from team_agents import developer, product_manager
 from models import SprintPhase
 
-SPEAKER_MAP : dict [SpeakerRole, Agent] = {
+SPEAKER_MAP: dict[SpeakerRole, Agent] = {
     SpeakerRole.PRODUCT_MANAGER: product_manager,
     SpeakerRole.DEVELOPER: developer,
 }
@@ -14,11 +14,13 @@ TURN_ORDER = [
     SpeakerRole.DEVELOPER,
 ]
 
+
 def _print_turn(speaker: SpeakerRole, message: str, turn: int) -> None:
     print(f"\n[Turn {turn}] {speaker.value}")
     print("--" * 25)
     for line in message.split("\n"):
         print(f" {line}")
+
 
 def _detect_termination(output: str) -> bool:
     for line in reversed(output.strip().split("\n")):
@@ -40,15 +42,16 @@ def _advance_phase(context: GroupChatContext) -> None:
 
 
 async def run_group_chat(
-    feature_request: str,
+    feature_requests: str,
     max_turns: int = 24,
-)-> GroupChatContext:
+) -> GroupChatContext:
     print(f"\n{"=" * 60}")
     print(" Collaborative Software Engineering Chat")
     print(f"\n{"=" * 60}")
-    print(f"Feature Request : {feature_request}\n")
+    print(f"Feature Request : {feature_requests}\n")
 
-    context = GroupChatContext(feature_requests=feature_request, max_turns=max_turns)
+    context = GroupChatContext(
+        feature_requests=feature_requests, max_turns=max_turns)
     current_speaker = SpeakerRole.PRODUCT_MANAGER
     run_config = RunConfig(workflow_name="GroupChat")
 
@@ -59,7 +62,7 @@ async def run_group_chat(
 
             if not context.conversation_log:
                 user_input = (
-                    f"Feature request : {feature_request}\n\n"
+                    f"Feature request : {feature_requests}\n\n"
                     "Define requirements for this feature."
                 )
             else:
@@ -83,7 +86,8 @@ async def run_group_chat(
                 print(f"\n Agent Error {e}")
                 break
 
-            output = str(result.final_output) if result.final_output else "(no output)"
+            output = str(
+                result.final_output) if result.final_output else "(no output)"
             context.log(current_speaker, output)
             _print_turn(current_speaker, output, turn)
 
@@ -105,6 +109,7 @@ async def run_group_chat(
             context.terminate = True
 
     return context
+
 
 def print_summary(context: GroupChatContext) -> None:
     print(f"\n{'=' * 60}")
@@ -134,7 +139,7 @@ def print_summary(context: GroupChatContext) -> None:
     print(f"\n {'=' * 60}\n")
 
 
-def save_output_to_file(context: GroupChatContext, filename: str ="sprint_output.md") -> str:
+def save_output_to_file(context: GroupChatContext, filename: str = "sprint_output.md") -> str:
     lines = [
         '#Sprint Output\n',
         f"## Feature: {context.feature_requests}",
@@ -161,7 +166,8 @@ def save_output_to_file(context: GroupChatContext, filename: str ="sprint_output
         lines.append("## Test Results\n")
         for tr in context.test_result:
             status = "PASS" if tr.passed else "FAIL"
-            lines.append(f"- **{tr.test_file}**: {status} ({tr.total_tests} tests, {tr.failure} failures, {tr.errors} erros)")
+            lines.append(
+                f"- **{tr.test_file}**: {status} ({tr.total_tests} tests, {tr.failure} failures, {tr.errors} erros)")
         lines.append("")
 
     lines.append("## Conversation Log\n")
@@ -174,12 +180,3 @@ def save_output_to_file(context: GroupChatContext, filename: str ="sprint_output
         f.write(content)
 
     return filename
-
-
-
-
-
-
-
-
-

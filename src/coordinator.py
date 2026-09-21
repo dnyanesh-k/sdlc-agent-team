@@ -48,7 +48,7 @@ async def run_group_chat(
     print(f"\n{"=" * 60}")
     print(f"Feature Request : {feature_request}\n")
 
-    context = GroupChatContext(feature_requests=feature_request, maxt_turns=max_turns)
+    context = GroupChatContext(feature_requests=feature_request, max_turns=max_turns)
     current_speaker = SpeakerRole.PRODUCT_MANAGER
     run_config = RunConfig(workflow_name="GroupChat")
 

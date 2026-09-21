@@ -1,5 +1,7 @@
 import asyncio
 
+from coordinator import run_group_chat, print_summary, save_output_to_file
+
 async def main()-> None:
     feature = input(">> ")
     context = await run_group_chat(feature_request = feature, max_turns = 20)
@@ -10,4 +12,4 @@ async def main()-> None:
     print(f"output saved to file {out}")
 
 if __name__ == "__main__":
-    asyncio.run(main(0))
+    asyncio.run(main())

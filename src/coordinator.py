@@ -176,7 +176,7 @@ def save_output_to_file(context: GroupChatContext, filename: str = "sprint_outpu
         lines.append(f"{entry['message']}\n")
 
     content = "\n".join(lines)
-    with open(filename, 'w') as f:
+    with open(filename, 'w', encoding='utf-8') as f:
         f.write(content)
 
     return filename
